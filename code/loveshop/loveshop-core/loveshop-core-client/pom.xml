@@ -1,18 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>loveshop</artifactId>
+    <artifactId>loveshop-core</artifactId>
     <groupId>com.brotherarm</groupId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <artifactId>loveshop-core</artifactId>
-  <packaging>pom</packaging>
-  <description>商城核心模块父工程</description>
+  <artifactId>loveshop-core-client</artifactId>
+  <description>商城核心代码客户端工程使用</description>
   <build/>
-  <modules>
-  	<module>loveshop-core-common</module>
-  	<module>loveshop-core-server</module>
-  	<module>loveshop-core-client</module>
-  </modules>
 </project>
