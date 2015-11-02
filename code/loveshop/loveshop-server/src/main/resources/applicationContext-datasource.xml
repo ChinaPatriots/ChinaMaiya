@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+     http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+     http://www.springframework.org/schema/aop 
+     http://www.springframework.org/schema/aop/spring-aop-3.1.xsd 
+     http://www.springframework.org/schema/tx  
+     http://www.springframework.org/schema/tx/spring-tx-3.1.xsd ">
+	
+	<!-- 数据源配置 -->
+	<bean id="dataSourceZBD" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${DataSource.zbd.driver}" />
+		<property name="jdbcUrl" value="${DataSource.zbd.url}" />
+		<property name="user" value="${DataSource.zbd.username}" />
+		<property name="password" value="${DataSource.zbd.password}" />
+		<property name="minPoolSize" value="${DataSource.zbd.minPoolSize}" />
+		<property name="maxPoolSize" value="${DataSource.zbd.maxPoolSize}" />
+		<property name="maxIdleTime" value="${DataSource.zbd.maxIdleTime}" />
+		<property name="acquireIncrement" value="${DataSource.zbd.acquireIncrement}" />
+		<!-- <property name="maxStatements" value="${DataSource.zbd.maxStatements}" /> -->
+		<property name="maxStatementsPerConnection" value="${DataSource.zbd.maxStatements}" />
+		<property name="initialPoolSize" value="${DataSource.zbd.initialPoolSize}" />
+		<property name="idleConnectionTestPeriod" value="${DataSource.zbd.idleConnectionTestPeriod}" />
+		<property name="acquireRetryAttempts" value="${DataSource.zbd.acquireRetryAttempts}" />
+		<property name="breakAfterAcquireFailure" value="${DataSource.zbd.breakAfterAcquireFailure}" />
+		<property name="testConnectionOnCheckout" value="${DataSource.zbd.testConnectionOnCheckout}" />
+	</bean>
+
+	<!-- 创建SqlSessionFactory ,同时指定数据源 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSourceZBD" />
+		<!-- 指定sqlMapConfig总配置文件，订制的environment在spring容器中不在生效 -->
+		<property name="configLocation" value="classpath:mybatisConfig.xml" />
+		<!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置,指定实体类映射文件，可以指定同时指定某一包以及子包下面的所有配置文件， 
+			mapperLocations和configLocation有一个即可，当需要为实体类指定别名时，可指定configLocation属性，再在mybatis总配置文件中采用mapper引入实体类映射文件 -->
+		<property name="mapperLocations">
+			<list>
+				<value>classpath*:com/brotherarm/server/**/domain/mybatis/mapper/*.xml</value>
+			</list>
+		</property>
+	</bean>
+	
+	<!-- 创建数据映射器 ,数据映射器必须为接口 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.brotherarm.server.**.dao.mybatis" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	
+	<!-- 配置jdbc事务管理器 -->
+	<bean id="transactionManager" name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="dataSourceZBD" />
+		</property>
+	</bean>
+	
+	<!-- 事务通知 -->
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="new*" propagation="REQUIRES_NEW" rollback-for="Exception"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- com.brotherarm.server.demo.biz -->
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="transactionPointcut" expression="execution(* com.brotherarm.server.**.biz.*.*(..))" />
+		<aop:advisor pointcut-ref="transactionPointcut" advice-ref="transactionAdvice" />
+	</aop:config>
+</beans>

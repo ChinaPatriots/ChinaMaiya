@@ -2,19 +2,26 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>loveshop-core</artifactId>
+		<artifactId>loveshop</artifactId>
 		<groupId>com.brotherarm</groupId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
-	<artifactId>loveshop-core-client</artifactId>
-	<description>商城核心代码客户端工程使用</description>
+	<artifactId>loveshop-server</artifactId>
 	
 	<dependencies>
 		<dependency>
-			<artifactId>loveshop-core-common</artifactId>
+			<artifactId>loveshop-core-server</artifactId>
 			<groupId>com.brotherarm</groupId>
 			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
 	

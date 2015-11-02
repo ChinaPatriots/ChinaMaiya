@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- <configuration status="OFF" monitorInterval="1800"> -->
+<configuration packages="com.brotherarm.core.common.logger.appender.dynamic" status="warn" monitorInterval="5">
+    <!-- 定义变量参数 -->
+    <properties>
+        <!--日志输出目录-->
+        <Property name="logDir">log/shopserver/</Property>
+        <!--日志备份目录-->
+        <Property name="logBakupDir">log/shopserver/Bakup/</Property>
+    </properties>
+
+    <appenders>
+        <!-- 定义控制台输出 -->
+        <Console name="ConsolePrint" target="SYSTEM_OUT">
+             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" charset="UTF-8"/>
+        </Console>
+		
+        <!-- 滚动文件日志 -->
+        <RollingFile name="Rfile" fileName="${logDir}default.log" filePattern="${logBakupDir}default-%d{yyyyMMdd}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d [%-5p] [%24c{1}:%-3L] %m%n%throwable</pattern>
+				<charset>UTF-8</charset>
+            </PatternLayout>
+            <SizeBasedTriggeringPolicy size="250MB"/>
+        </RollingFile>
+        
+        <!-- 根据业务选择日志输出 -->
+        <Dynamic name="DynamicLog" full="false">
+            <DRoutes pattern="${ctx:ROUTINGKEY}">
+                <DRoute key="${ctx:ROUTINGKEY}">
+                    <RollingFile name="${ctx:ROUTINGKEY}" fileName="${logDir}${ctx:ROUTINGKEY}.log" filePattern="${logBakupDir}${ctx:ROUTINGKEY}-%d{yyyyMMdd}-%i.log.gz">
+                        <PatternLayout>
+                            <pattern>%d [%-5p] [ROUTINGKEY:$${ctx:ROUTINGKEY}] [%24c{1}:%-3L] %m%n%throwable</pattern>
+							<charset>UTF-8</charset>
+                        </PatternLayout>
+                        <SizeBasedTriggeringPolicy size="250MB"/>
+                    </RollingFile>
+                </DRoute>
+            </DRoutes>
+        </Dynamic>
+        
+        <!--异步日志输出-->
+        <Async name="Asynch">
+            <appender-ref ref="DynamicLog"/>
+            <appender-ref ref="ConsolePrint"/>
+           	<appender-ref ref="Rfile"/>
+        </Async>
+    </appenders>
+
+    <loggers>
+        <!-- <logger name="org.apache.zookeeper" level="error" additivity="false">
+            <appender-ref ref="ConsolePrint"/>
+        </logger> -->
+		
+        <root level="DEBUG">
+			<appender-ref ref="Asynch"/>
+		</root>
+    </loggers>
+
+</configuration>
